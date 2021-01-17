@@ -45,9 +45,7 @@ app.use(passport.session());
    next();
    })
 
-   var express = require('express');
    var cors = require('cors');
-   var app = express();
    app.use(cors());
   
 const apiRouter = express.Router()
