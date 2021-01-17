@@ -3,7 +3,6 @@ const deporteRoutes = require('./deporteRoutes')
 const hobbieRoutes = require('./hobbieRoutes')
 const materiaRoutes = require('./materiaRoutes')
 const metaRoutes = require('./metaRoutes')
-const userRegisterRoutes = require('./userRegisterRoutes')
 const userLoginRoutes = require('./userLoginRoutes')
 const userRegisterRoutes = require('./userRegisterRoutes')
 
