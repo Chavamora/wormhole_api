@@ -13,12 +13,13 @@ const apiRoutes = require('./routes');
 // require("./config/passport")(passport)
 //express app
 const app = express();
+var PORT = process.env.PORT || 3000
 //connect to mongodb
 
 
 const dbURL = 'mongodb+srv://beto:test1234@nodetuts.jy1sr.mongodb.net/node-tuts?retryWrites=true&w=majority';
 mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
-    .then((result) => app.listen(3000))
+    .then((result) => app.listen(PORT))
     .catch((err) => console.log(err));
 
 app.use(express.urlencoded({ extended: true }));
