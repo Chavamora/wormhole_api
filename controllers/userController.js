@@ -36,8 +36,6 @@ function newUser  (req, res)  {
 }
 
 const express = require('express');
-const User = require("../models/user.js");
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const passport = require('passport');
