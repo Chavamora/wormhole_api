@@ -3,6 +3,7 @@ const deporteRoutes = require('./deporteRoutes')
 const hobbieRoutes = require('./hobbieRoutes')
 const materiaRoutes = require('./materiaRoutes')
 const metaRoutes = require('./metaRoutes')
+const userRegisterRoutes = require('./userRegisterRoutes')
 const userRoutes = require('./userRoutes')
 
 
@@ -12,5 +13,6 @@ module.exports = app => {
     hobbieRoutes(app)
     materiaRoutes(app)
     metaRoutes(app)
-    userRoutes(app)
+    userLoginRoutes(app)
+    userRegisterRoutes(app)
 }
