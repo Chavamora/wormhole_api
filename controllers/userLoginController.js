@@ -2,11 +2,11 @@ const User = require('../models/user.js')
 const mongoose = require('mongoose')
 
 module.exports = {
-    getUsers,
-    newUser
+    getLogin,
+    login
 }
 
-function getUsers  (req, res)  {
+function getLogin  (req, res)  {
     User.find().sort({ createdAt: -1})
     .then((result) => {
        res.status(200).json(result);
@@ -18,7 +18,7 @@ function getUsers  (req, res)  {
 
 }
 
-function newUser  (req, res)  {
+function login  (req, res)  {
     console.log(req.body);
     const user = new User(req.body);
     user.user_id = req.header('user_id');
