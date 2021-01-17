@@ -22,6 +22,8 @@ mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
     .then((result) => app.listen(PORT))
     .catch((err) => console.log(err));
 
+
+  
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 
@@ -43,6 +45,11 @@ app.use(passport.session());
    next();
    })
 
+   var express = require('express');
+   var cors = require('cors');
+   var app = express();
+   app.use(cors());
+  
 const apiRouter = express.Router()
 
 apiRoutes(apiRouter);
