@@ -1,6 +1,8 @@
 const User = require('../models/user.js')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const passport = require('passport');
+
 
 module.exports = {
     getRegister,
@@ -36,23 +38,26 @@ function getRegister (req,res) {
     } else {
         //validation passed
        User.findOne({email : email}).exec((err,user)=>{
-        console.log(user);   
+           console.log('hola')        
+           console.log(user);   
         if(user) {
-            errors.push({msg: 'este email ya está registrado'});
+            //errors.push({msg: 'este email ya está registrado'});
             // res.render('register',{errors,name,email,password,password2, title: 'register'})
-            
+            console.log('email registrado')        
+
            } else {
             const newUser = new User({
                 name : name,
                 email : email,
                 password : password
             });
-
+            console.log('usuario creado')
                //hash password
                bcrypt.genSalt(10,(err,salt)=> 
                bcrypt.hash(newUser.password,salt,
                    (err,hash)=> {
                        if(err) throw err;
+                       console.log(err)
                            //save pass to hash
                            newUser.password = hash;
                        //save user
@@ -65,7 +70,11 @@ function getRegister (req,res) {
                        })
                        .catch(value=> console.log(value));
                          
-                   }));
+                   }
+                   )
+                   
+                   );
+                   
                 } //ELSE statement ends here
         })
     }
