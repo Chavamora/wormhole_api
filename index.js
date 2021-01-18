@@ -23,8 +23,12 @@ mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
     .catch((err) => console.log(err));
 
     const cors = require('cors');
-    app.use(cors());
-  
+ 
+    app.use(cors({
+      origin: '*'
+    }));
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 
