@@ -59,6 +59,7 @@ function getRegister (req,res) {
                        newUser.save()
                        .then((value)=>{
                            console.log(value)
+                           console.log('registro exitoso')
                     //        req.flash('success_msg','tu registro fue exitoso!')
                     //    res.redirect('/users/login');
                        })
