@@ -9,7 +9,7 @@ module.exports = {
     register
 }
 
-function getRegister (req,res) {
+function register (req,res) {
 
     const {name, email, password, password2} = req.body;
     let errors = [];
@@ -81,7 +81,7 @@ function getRegister (req,res) {
 };
 
 
-function register (req,res) {
+function getRegister (req,res) {
 
     const {name, email, password, password2} = req.body;
     let errors = [];
