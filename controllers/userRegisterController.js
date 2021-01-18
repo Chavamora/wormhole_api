@@ -15,21 +15,26 @@ function register (req,res) {
     let errors = [];
     console.log(' Name ' + name+ ' email :' + email+ ' pass:' + password);
     if(!name || !email || !password || !password2) {
-        errors.push({msg : "Por favor llena todos los campos"})
-        res.status(500).send('unexpected error')
+        //errors.push({msg : "Por favor llena todos los campos"})
+        console.error('Faltan campos')
+        res.status(400).send('Faltan campos')
+        return false
 
     }
     //check if match
     if(password !== password2) {
-        errors.push({msg : "Las contraseñas no coinciden"});
-        res.status(500).send('unexpected error')
+        //errors.push({msg : "Las contraseñas no coinciden"});
+       console.error('Las contraseñas no coinciden')
+        res.status(400).send('Las contraseñas no coinciden')
+        return false
 
     }
     
     //check if password is more than 6 characters
     if(password.length < 6 ) {
-        errors.push({msg : 'Tu contraseña debe contener al menos 6 caracteres'})
+        //errors.push({msg : 'Tu contraseña debe contener al menos 6 caracteres'})
         res.status(500).send('unexpected error')
+      return false
 
     }
     if(errors.length > 0 ) {
