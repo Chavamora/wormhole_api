@@ -1,5 +1,6 @@
 const User = require('../models/user.js')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 
 module.exports = {
     getRegister,
