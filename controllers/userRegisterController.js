@@ -16,15 +16,21 @@ function register (req,res) {
     console.log(' Name ' + name+ ' email :' + email+ ' pass:' + password);
     if(!name || !email || !password || !password2) {
         errors.push({msg : "Por favor llena todos los campos"})
+        res.status(500).send('unexpected error')
+
     }
     //check if match
     if(password !== password2) {
         errors.push({msg : "Las contraseñas no coinciden"});
+        res.status(500).send('unexpected error')
+
     }
     
     //check if password is more than 6 characters
     if(password.length < 6 ) {
         errors.push({msg : 'Tu contraseña debe contener al menos 6 caracteres'})
+        res.status(500).send('unexpected error')
+
     }
     if(errors.length > 0 ) {
     // res.render('register', {
@@ -35,6 +41,7 @@ function register (req,res) {
     //     password2 : password2,
     //     title: 'register'})
     console.log('some error')
+    res.status(500).send('unexpected error')
     } else {
         //validation passed
        User.findOne({email : email}).exec((err,user)=>{
