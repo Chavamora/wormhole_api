@@ -10,6 +10,8 @@ var path = require('path');
 var imgModel = require('./models/image');
 var multer = require('multer');
 const apiRoutes = require('./routes');
+var multer = require('multer');
+
 // require("./config/passport")(passport)
 //express app
 const app = express();
@@ -17,7 +19,7 @@ var PORT = process.env.PORT || 3000
 //connect to mongodb
 
 
-const dbURL = 'mongodb+srv://beto:test1234@nodetuts.jy1sr.mongodb.net/node-tuts?retryWrites=true&w=majority';
+const dbURL = 'mongodb+srv://beto:1h6TcUceQzGynIJb@nodetuts.jy1sr.mongodb.net/node-tuts?retryWrites=true&w=majority';
 mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
     .then((result) => app.listen(PORT))
     .catch((err) => console.log(err));
@@ -26,12 +28,30 @@ mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
  
     app.use(cors({
       origin: '*',
-      methods: ["GET", "POST"]
+      methods: ["GET", "POST"],
+      allowedHeaders: '*'
     }));
 
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
+
+/////////////////////
+// SESSION CONFIG
+/////////////////////
+
+require("./config/passportConfig")(passport)
+
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+  destination: function(req, file, callback) {
+    callback(null, '/uploads/');
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
 
 app.use(session({
     secret : 'secret',
@@ -42,21 +62,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-   //use flash
-   app.use(flash());
-   app.use((req,res,next)=> {
-     res.locals.success_msg = req.flash('success_msg');
-     res.locals.error_msg = req.flash('error_msg');
-     res.locals.error  = req.flash('error');
-   next();
-   })
-
-   
   
 const apiRouter = express.Router()
-
+// const secureRoute = require('./routes/secure-routes');
 apiRoutes(apiRouter);
 
 app.use('/api/', apiRouter);
+// app.use('/api/user', passport.authenticate('jwt', { session: false }), secureRoute);
+
 
 app.use(morgan('dev'));
