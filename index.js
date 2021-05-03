@@ -42,7 +42,7 @@ app.use(express.json())
 
 require("./config/passportConfig")(passport)
 
-const multer = require('multer');
+
 
 const storage = multer.diskStorage({
   destination: function(req, file, callback) {
