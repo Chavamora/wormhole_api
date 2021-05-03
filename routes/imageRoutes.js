@@ -5,5 +5,5 @@ const passport = require('passport')
 module.exports = app => {
     app.route('/user/image' )
     .get(imageController.getImage)
-    .post(imageController.postImage, upload.single('file'))
+    .post(imageController.postImage)
 }
