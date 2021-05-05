@@ -36,7 +36,7 @@ mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 
-
+app.use(bodyParser.json())
 /////////////////////
 // SESSION CONFIG
 /////////////////////
