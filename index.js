@@ -36,6 +36,7 @@ mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 
+
 /////////////////////
 // SESSION CONFIG
 /////////////////////
@@ -44,20 +45,22 @@ require("./config/passportConfig")(passport)
 
 
 
-const storage = multer.diskStorage({
-  destination: function(req, file, callback) {
-    callback(null, '/uploads/');
-  },
-  filename: function (req, file, callback) {
-    callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: function(req, file, callback) {
+//     callback(null, '/uploads/');
+//   },
+//   filename: function (req, file, callback) {
+//     callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//   }
+// });
 
 app.use(session({
     secret : 'secret',
     resave : true,
     saveUninitialized : true
 }));
+
+
 
 app.use(passport.initialize());
 app.use(passport.session());
