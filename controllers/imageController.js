@@ -7,6 +7,8 @@ var fs = require('fs');
 var path = require('path');
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
+const {cloudinary} = require ('../utils/cloudinary')
+const User = require('../models/user.js')
 
 var imgModel = require('../models/image.js');
 
@@ -30,36 +32,47 @@ module.exports = {
 
 
 
-function getImage (req, res)  {
-
+  function getImage (req, res)  {
+  
   passport.authenticate('jwt', 
-  (err, user) => {
+  async (err, user) => {
     if (err || !user) {
-      return res.status(400).send("NO VALID TOKEN")   
+      return res.status(400).send("NO VALID TOKEN" + err)   
     }
 
-  console.log('hola')
-  imgModel.find({}, (err, items) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send('An error occurred', err);
-    }
-    else {
+  // console.log('hola')
+  // imgModel.find({}, (err, items) => {
+  //   if (err) {
+  //     console.log(err);
+  //     res.status(500).send('An error occurred', err);
+  //   }
+  //   else {
 
-      const dataBase64 = items[0].img.data.toString('base64')
-      console.log(items)
-      console.log(items[0].img.data) 
+  //     const dataBase64 = items[0].img.data.toString('base64')
+  //     console.log(items)
+  //     console.log(items[0].img.data) 
       
-      obj= {
-        items,
-        dataBase64
-      }
-      res.status(200).send(obj)
+  //     obj= {
+  //       items,
+  //       dataBase64
+  //     }
+  //     res.status(200).send(obj)
      
-    }
-  });
-  }
+  //   }
+  // });l
+  
 
+  const {resources} = await cloudinary.search.expression('folder:user_profile_pictures')
+  .sort_by('public_id','desc')
+  .max_results(30)
+  .execute();
+  console.log('resources: ', resources)
+const publicIds = resources.map(file => file.public_id)
+  res.send(publicIds)
+
+
+  
+  }
 )(req, res)    
 }
 
@@ -70,80 +83,39 @@ const handleError = (err, res) => {
       .end("Oops! Something went wrong!"+err);
   }
 
-function postImage (req, res)  {
+function postImage  (req, res)  {
   passport.authenticate('jwt', 
-  (err, user) => {
+  async (err, user) => {
       if (err || !user) {
           return res.status(400).send("NO VALID TOKEN"+ err)   
       }
 
-  console.log('cuerpo:', req.file)
-  console.log(1)
-  const tempPath = req.file.path;
-  console.log('path= ', req.file.path)
-  console.log(2)
-  console.log(__dirname)
 
-  const directory = ('C:/Users/chava gamer/Code/wormhole_api/uploads')
-
-  const targetPath = path.join(directory, req.file.originalname);
-  console.log(3)
-  req.file.user_id = user._id
-
-  console.log('buenas')
-  console.log(4)
-
-  if (path.extname(req.file.originalname).toLowerCase() === ".jpg") {
-  console.log(5)
-
-  fs.rename(tempPath, targetPath, err => {
-    console.log(6)
-
-    if (err) return handleError(err, res);
-    console.log(7)
-    console.log('cuerpo + userid:', req.file)
-    console.log(4)
-
-    var obj = {
-      img: {
-          data: fs.readFileSync(path.join(directory, req.file.originalname)),
-          contentType: 'image/png'
-      }
+  try {
+      const fileStr = req.body.data;
+      console.log(fileStr)
+      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: 'profile_pictures'
+      })
+      console.log(uploadedResponse)
+const url = uploadedResponse.secure_url
+        
+      User.findByIdAndUpdate(
+        {_id: user._id}, 
+        {profile_picture_url: url})      
+        .then((user) => {
+        
+        console.log('userconurl', user)
+      })
+      res.json({msg: 'YAYAYYAYAYYA'})
+  } catch (error) {
+      console.error(error)
+      res.status(500).json({err: 'something went wrong'})
   }
-  console.log(3)
 
-  obj.user_id = user._id
-console.log(1)
-  imgModel.create(obj, (err, item) => {
-    console.log(2)
 
-      if (err) {
-          console.log(err);
-      }
-      else {
-          // item.save();
-          // res.status(200).send('image uploaded and saved');
-          console.log('lol')
-      }
-  });
 
-    res
-      .status(200)
-      .contentType("text/plain")
-      .end("File uploaded!");
-  });
-    } else {
-      console.log(8)
-      fs.unlink(tempPath, err => {
-      if (err) return handleError(err, res);
-  
-      res
-        .status(403)
-        .contentType("text/plain")
-        .end("Only .png files are allowed!");
-      });
-    }
-    console.log(user)
+
   }
   )(req, res)
 

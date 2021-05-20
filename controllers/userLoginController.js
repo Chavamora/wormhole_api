@@ -70,10 +70,11 @@ function login (req, res, next)  {
 
                 if (error) return next(error);
   
-                const body = { _id: user._id, email: user.email };
+                const body = { _id: user._id, email: user.email, name: user.name, url: user.profile_picture_url};
                 console.log('1')
                 const token = jwt.sign({ user: body }, 'TOP_SECRET');
-                console.log(body)
+                console.log('cuarpo' +body)
+                console.log('usuario backend:' + user)
 
                 console.log('token por enviarse ' + token)
 
@@ -82,7 +83,6 @@ function login (req, res, next)  {
               }
               
             );
-            
             console.log('token enviado')
             }
           } catch (error) {

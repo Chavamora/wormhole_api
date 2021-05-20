@@ -15,6 +15,14 @@ password :{
 date :{
     type : Date,
     default : Date.now
+},
+profile_picture_url: {
+    type : String,
+    required : false
+},
+tipo: {
+    type: Number,
+    default: 1
 }
 });
 const User= mongoose.model('User',UserSchema);
