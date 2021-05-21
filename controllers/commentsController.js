@@ -14,7 +14,7 @@ var globalCommentDocList = []
 
 function getComments (req, res)  {
 const reporte_id = req.query.reporteID
-console.log('reporte comentado: ', reporte_id)
+// console.log('reporte comentado: ', reporte_id)
     passport.authenticate('jwt', 
 
 
@@ -36,7 +36,7 @@ console.log('reporte comentado: ', reporte_id)
             return comment
     })
     const response = await Promise.all(objectCommentList)
-    console.log('response:', response)
+    // console.log('response:', response)
     res.json(response)
 
     }

@@ -9,7 +9,10 @@ module.exports = {
     getReportes,
     postReporte,
     getSingleReporte,
-    postSingleReporte
+    postSingleReporte,
+    editReporte,
+    deleteReporte,
+    editReporteComplete
 }
 var reportWithAuthorList = []
 var objectReportList = []
@@ -79,27 +82,23 @@ function getSingleReporte  (req, res)  {
         }
         userLoggedAvatarUrl = user.url
         userLoggedName = user.name
+        usertype = user.tipo
 
         Reporte.findById(reporte_id)
             .then((reportDoc) => {
                 const report = reportDoc.toObject();
-
+                console.log('reporte: ', report)
                 User.findById(report.user_id)
                 .then((userDoc) => {
                     const user = userDoc.toObject();
                     const name = user.name 
                     const url = user.profile_picture_url
-                    console.log(user.profile_picture_url)
-
-                    console.log('REPORTE: ' + report)
-                    console.log('REPORTE HECHO POR: ' + user)
-                    
+  
                     report.name = name
                     report.url = url
                     report['loggedAvatar'] = userLoggedAvatarUrl
                     report['loggedUserName'] = userLoggedName 
-                    console.log(typeof report)
-                    console.log('REPORTE MAS USUARIO: ' + JSON.stringify(report))
+                    report['tipo'] = usertype
                     res.json(report)
                 })
             })
@@ -130,4 +129,75 @@ function postSingleReporte  (req, res)  {
             })
     }
     )(req, res)
+}
+
+function editReporte (req, res)  {
+    console.log(req.body)
+    const reporte_id = req.query.reporteID
+    const tag = req.body
+    passport.authenticate('jwt', 
+    (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        Reporte.findByIdAndUpdate(
+            {_id: reporte_id}, 
+            {tags: tag})      
+            .then((reporte) => {
+            res.json(reporte)
+            console.log('userconurl', reporte)
+            })
+        .then((reportDoc) => {
+            
+        })
+
+    }
+    )(req, res)
+}
+
+function editReporteComplete (req, res)  {
+    console.log(req.body)
+    const reporte_id = req.query.reporteID
+    const titulo = req.body.titulo
+    const descripcion = req.body.descripcion
+    passport.authenticate('jwt', 
+    (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        Reporte.findByIdAndUpdate(
+            {_id: reporte_id}, 
+            {titulo: titulo,
+            descripcion: descripcion})      
+            .then((reporte) => {
+            res.json(reporte)
+            console.log('reporteMod', reporte)
+            })
+
+    }
+    )(req, res)
+   
+}
+
+function deleteReporte  (req, res)  {
+    const reporte_id = req.query.reporteID
+    passport.authenticate('jwt', 
+    (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        Reporte.findByIdAndDelete(reporte_id)
+        .then(result => {
+            res.json({redirect: '/reportes'})
+        })
+        .catch(err => {
+        console.log(err)
+        })
+
+    }
+    )(req, res)
+   
 }

@@ -28,7 +28,7 @@ mongoose.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true})
  
     app.use(cors({
       origin: '*',
-      methods: ["GET", "POST"],
+      methods: ["GET", "POST", "DELETE"],
       allowedHeaders: '*'
     }));
 

@@ -17,16 +17,17 @@ function register (req,res) {
     if(!name || !email || !password || !password2) {
         //errors.push({msg : "Por favor llena todos los campos"})
         console.error('Faltan campos')
-        res.status(400).send('Faltan campos')
+        errors.push('faltan campos')
+        res.status(400).json({errors: errors})
         return false
 
     }
     //check if match
     if(password !== password2) {
-        //errors.push({msg : "Las contraseñas no coinciden"});
+        errors.push('Las contraseñas no coinciden');
        console.error('Las contraseñas no coinciden')
-        res.status(400).send('Las contraseñas no coinciden')
-        return false
+       res.status(400).json({errors: errors})
+       return false
 
     }
     
@@ -53,9 +54,10 @@ function register (req,res) {
            console.log('hola')        
            console.log(user);   
         if(user) {
-            //errors.push({msg: 'este email ya está registrado'});
+            errors.push('este email ya está registrado');
             // res.render('register',{errors,name,email,password,password2, title: 'register'})
-            console.log('email registrado')        
+            console.log('email registrado')
+            res.status(400).json({errors: errors})
 
            } else {
             const newUser = new User({
@@ -77,6 +79,9 @@ function register (req,res) {
                        .then((value)=>{
                            console.log(value)
                            console.log('registro exitoso')
+                           errors.push('registro exitoso')
+                           res.status(200).json({errors: errors})
+                        
                     //        req.flash('success_msg','tu registro fue exitoso!')
                     //    res.redirect('/users/login');
                        })

@@ -9,4 +9,9 @@ module.exports = app => {
     app.route('/user/reporte')
     .get(reportesController.getSingleReporte)
     .post(reportesController.postSingleReporte)
+    app.route('/user/reporte/editar')
+    .post(reportesController.editReporte)
+    .delete(reportesController.deleteReporte)
+    app.route('/user/reporte/modificar')
+    .post(reportesController.editReporteComplete)
 }

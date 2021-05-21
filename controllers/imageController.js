@@ -107,14 +107,20 @@ const url = uploadedResponse.secure_url
         
         console.log('userconurl', user)
       })
+
+      
+
       res.json({msg: 'YAYAYYAYAYYA'})
+
+      
+
   } catch (error) {
       console.error(error)
       res.status(500).json({err: 'something went wrong'})
   }
 
 
-
+ 
 
   }
   )(req, res)

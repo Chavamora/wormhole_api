@@ -70,7 +70,7 @@ function login (req, res, next)  {
 
                 if (error) return next(error);
   
-                const body = { _id: user._id, email: user.email, name: user.name, url: user.profile_picture_url};
+                const body = { _id: user._id, email: user.email, name: user.name, url: user.profile_picture_url, tipo: user.tipo};
                 console.log('1')
                 const token = jwt.sign({ user: body }, 'TOP_SECRET');
                 console.log('cuarpo' +body)
