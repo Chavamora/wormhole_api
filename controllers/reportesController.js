@@ -55,21 +55,29 @@ function postReporte  (req, res)  {
             return res.status(400).send("NO VALID TOKEN")   
         }
 
-        const reporte = new Reporte(req.body);
+        User.findOne({name:req.usuario})
+        .then((result)=>{
+            if (result==undefined || result == null) {
+                res.status(400).send("NO VALID USER") 
+            } else {
+                const reporte = new Reporte(req.body);
 
-        reporte['user_id'] = user._id;
-        console.log(reporte);
-        console.log(req.body);
+            reporte['user_id'] = user._id;
+            console.log(reporte);
+            console.log(req.body);
     
-        reporte.save()
-        .then((result) => {
+            reporte.save()
+            .then((result) => {
             res.status(200).json(result);
-        })
-        .catch((err) => {
+             })
+            .catch((err) => {
             console.log(err);
+            })
+            .catch(error => console.log(error))
+        }    
         })
-    }
-    )(req, res)
+    
+    })(req, res)
 }
 
 function getSingleReporte  (req, res)  {

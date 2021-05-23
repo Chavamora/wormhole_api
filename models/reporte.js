@@ -17,6 +17,10 @@ const reporteSchema = new Schema({
     user_id: {
         type: String,
         required: true
+    },
+    usuario: {
+        type: String,
+        required: true
     }
 }, {timestamps: true});
 
