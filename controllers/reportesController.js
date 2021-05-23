@@ -55,10 +55,12 @@ function postReporte  (req, res)  {
             return res.status(400).send("NO VALID TOKEN")   
         }
 
-        User.findOne({name:req.usuario})
+        User.findOne({name:req.body.usuario})
         .then((result)=>{
             if (result==undefined || result == null) {
-                res.status(400).send("NO VALID USER") 
+                let error = 'El id de usuario que ingresó no está registrado en la base de datos.'
+                res.status(400).json({error:error})
+    
             } else {
                 const reporte = new Reporte(req.body);
 
