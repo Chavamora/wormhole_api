@@ -36,8 +36,12 @@ function getReportes (req, res)  {
                 const url = userObj.profile_picture_url
                 report['url'] = url
                 report['name'] =  username
+                report['tipo'] = user.tipo
+                
             return report
     })
+
+
     const response = await Promise.all(objectReportList)
     console.log('response:', response)
     res.json(response)
