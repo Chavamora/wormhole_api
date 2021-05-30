@@ -11,6 +11,7 @@ const imageRoutes = require('./imageRoutes')
 const reporteRoutes = require('./reporteRoutes')
 const commentRoutes = require('./commentRoutes')
 const publicacionRoutes = require('./publicacionRoutes')
+const followsRoutes = require('./followsRoutes')
 
 
 module.exports = app => {
@@ -27,4 +28,5 @@ module.exports = app => {
     commentRoutes(app)
     publicacionRoutes(app)
     reporteRoutes(app)
+    followsRoutes(app)
 }
