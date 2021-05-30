@@ -7,16 +7,16 @@ var fs = require('fs');
 var path = require('path');
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
-const {cloudinary} = require ('../utils/cloudinary')
+const { cloudinary } = require('../utils/cloudinary')
 const User = require('../models/user.js')
 
 var imgModel = require('../models/image.js');
 
 var multer = require('multer');
- 
+
 module.exports = {
-    getImage,
-    postImage
+  getImage,
+  postImage
 }
 
 // var storage = multer.diskStorage({
@@ -32,97 +32,94 @@ module.exports = {
 
 
 
-  function getImage (req, res)  {
-  
-  passport.authenticate('jwt', 
-  async (err, user) => {
-    if (err || !user) {
-      return res.status(400).send("NO VALID TOKEN" + err)   
+function getImage(req, res) {
+
+  passport.authenticate('jwt',
+    async (err, user) => {
+      if (err || !user) {
+        return res.status(400).send("NO VALID TOKEN" + err)
+      }
+
+      // console.log('hola')
+      // imgModel.find({}, (err, items) => {
+      //   if (err) {
+      //     console.log(err);
+      //     res.status(500).send('An error occurred', err);
+      //   }
+      //   else {
+
+      //     const dataBase64 = items[0].img.data.toString('base64')
+      //     console.log(items)
+      //     console.log(items[0].img.data) 
+
+      //     obj= {
+      //       items,
+      //       dataBase64
+      //     }
+      //     res.status(200).send(obj)
+
+      //   }
+      // });l
+
+
+      const { resources } = await cloudinary.search.expression('folder:user_profile_pictures')
+        .sort_by('public_id', 'desc')
+        .max_results(30)
+        .execute();
+      console.log('resources: ', resources)
+      const publicIds = resources.map(file => file.public_id)
+      res.json(publicIds)
     }
-
-  // console.log('hola')
-  // imgModel.find({}, (err, items) => {
-  //   if (err) {
-  //     console.log(err);
-  //     res.status(500).send('An error occurred', err);
-  //   }
-  //   else {
-
-  //     const dataBase64 = items[0].img.data.toString('base64')
-  //     console.log(items)
-  //     console.log(items[0].img.data) 
-      
-  //     obj= {
-  //       items,
-  //       dataBase64
-  //     }
-  //     res.status(200).send(obj)
-     
-  //   }
-  // });l
-  
-
-  const {resources} = await cloudinary.search.expression('folder:user_profile_pictures')
-  .sort_by('public_id','desc')
-  .max_results(30)
-  .execute();
-  console.log('resources: ', resources)
-const publicIds = resources.map(file => file.public_id)
-  res.send(publicIds)
-
-
-  
-  }
-)(req, res)    
+  )(req, res)
 }
 
 const handleError = (err, res) => {
-    res
-      .status(500)
-      .contentType("text/plain")
-      .end("Oops! Something went wrong!"+err);
-  }
+  res
+    .status(500)
+    .contentType("text/plain")
+    .end("Oops! Something went wrong!" + err);
+}
 
-function postImage  (req, res)  {
-  passport.authenticate('jwt', 
-  async (err, user) => {
+function postImage(req, res) {
+  passport.authenticate('jwt',
+    async (err, user) => {
       if (err || !user) {
-          return res.status(400).send("NO VALID TOKEN"+ err)   
+        return res.status(400).send("NO VALID TOKEN" + err)
       }
 
 
-  try {
-      const fileStr = req.body.data;
-      console.log(fileStr)
-      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
-        upload_preset: 'profile_pictures'
-      })
-      console.log(uploadedResponse)
-const url = uploadedResponse.secure_url
-        
-      User.findByIdAndUpdate(
-        {_id: user._id}, 
-        {profile_picture_url: url})      
-        .then((user) => {
-        
-        console.log('userconurl', user)
-      })
+      try {
+        const fileStr = req.body.data;
+        console.log(fileStr)
+        const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+          upload_preset: 'profile_pictures'
+        })
+        console.log(uploadedResponse)
+        const url = uploadedResponse.secure_url
 
-      
+        User.findByIdAndUpdate(
+          { _id: user._id },
+          { profile_picture_url: url })
+          .then((user) => {
 
-      res.json({msg: 'YAYAYYAYAYYA'})
-
-      
-
-  } catch (error) {
-      console.error(error)
-      res.status(500).json({err: 'something went wrong'})
-  }
+            console.log('userconurl', user)
+          })
 
 
- 
 
-  }
+        res.json({ msg: 'YAYAYYAYAYYA' })
+
+
+
+      } catch (error) {
+        console.error(error)
+        res.status(500).json({ err: 'something went wrong' })
+      }
+
+
+
+
+    }
   )(req, res)
 
 }
