@@ -18,16 +18,6 @@ const publicacionSchema = new Schema({
         type: String,
         required:true
     },
-    likes:{
-        type: Number,
-        required:false,
-        default:0
-    },
-    dislikes:{
-        type: Number,
-        required: false,
-        default:0
-    },
 }, {timestamps: true});
 
 const Publicacion = mongoose.model('Publicacion', publicacionSchema);

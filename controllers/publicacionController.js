@@ -1,15 +1,19 @@
 const Publicacion = require('../models/publicacion.js')
 const User = require('../models/user.js')
+const UserLikes = require('../models/user_like.js')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const { response } = require('express')
 const { cloudinary } = require('../utils/cloudinary')
+const UserLike = require('../models/user_like.js')
 
 module.exports = {
     getAllPublicaciones,
     postPublicacion,
-    getSinglePublicacion
+    getSinglePublicacion,
+    likeDislikePost,
+    removeLikeDislikePost
 }
 
 function getAllPublicaciones(req, res) {
@@ -19,22 +23,52 @@ function getAllPublicaciones(req, res) {
                 return res.status(400).send("NO VALID TOKEN")
             }
 
-            const publicacionDocList = await Publicacion.find().sort({ createdAt: -1 })
-            const objectPublicacionList = publicacionDocList.map(async (publicacionDoc) => {
-                const publicacion = publicacionDoc.toObject()
-                const userDoc = await User.findById(publicacion.user_id)
+            const postsDocList = await Publicacion.find().sort({ createdAt: -1 })
+            const postsObjectsPromises = postsDocList.map(async (postDoc) => {
+                const post = postDoc.toObject()
+                const userDoc = await User.findById(post.user_id)
                 const userObj = userDoc.toObject()
                 const username = userObj.name
                 const url = userObj.profile_picture_url
-                publicacion['url_user'] = url
-                publicacion['name'] = username
-                return publicacion
+                post['url_user'] = url
+                post['name'] = username
+                return post
             })
 
-            const response = await Promise.all(objectPublicacionList)
+            const posts = await Promise.all(postsObjectsPromises)
+
+            const postsIds = posts.map(post => post._id)
+
+            const postsLikes = await UserLike.find({item_type: 'post', item_id: postsIds}, null, {lean: true}).exec()
+            const postsLikesCount = postsLikes.reduce((reducer, item) => {
+                console.log(reducer)
+                let count = {post_id: item.item_id, likes: 0, dislikes: 0, user_action: null}
+
+                if (item.item_id in reducer) {
+                    count = reducer[item.item_id];
+                }
+
+                if (item.like_dislike === 'like') {
+                    count.likes = count.likes + 1
+                } else if (item.like_dislike === 'dislike') {
+                    count.dislikes = count.dislikes + 1
+                }
+
+                if (item.user_id === user._id) {
+                    count.user_action = item.like_dislike
+                }
+
+                reducer[item.item_id] = count
+
+                return reducer
+            }, {})
+
+            const fullPosts = posts.map(post => ({...post, ...postsLikesCount[post._id]}))
+
+            console.log("FULLPOSTS", fullPosts)
             
-            console.log('response:', response)
-            res.json(response)
+            // console.log('response:', posts)
+            res.json(fullPosts)
         }
     )(req, res)
 
@@ -116,8 +150,8 @@ function getSinglePublicacion(req, res) {
             usertype = user.tipo
 
             Publicacion.findById(publicacion_id)
-                .then((publicacionDoc) => {
-                    const publicacion = publicacionDoc.toObject();
+                .then((postDoc) => {
+                    const publicacion = postDoc.toObject();
                     console.log('publicacion: ', publicacion)
                     User.findById(publicacion.user_id)
                         .then((userDoc) => {
@@ -137,6 +171,53 @@ function getSinglePublicacion(req, res) {
                     console.log(err);
                 })
 
+        }
+    )(req, res)
+
+}
+
+function likeDislikePost(req, res) {
+
+    passport.authenticate('jwt',
+        async (err, user) => {
+            if (err || !user) {
+                return res.status(400).send("NO VALID TOKEN")
+            }
+            
+            const postId = req.params.post_id
+            const likeDislike = req.query.like_dislike
+
+            const selectedPost = await UserLike.findOneAndUpdate(
+                {item_id: postId, item_type: 'post', user_id: user._id},
+                {like_dislike: likeDislike}, 
+                {lean: true, upsert: true}
+            ).exec()
+            console.log("UPDATED LIKE FROM POST", selectedPost)
+
+            res.status(200).send(selectedPost)
+        }
+    )(req, res)
+
+}
+
+
+function removeLikeDislikePost(req, res) {
+
+    passport.authenticate('jwt',
+        async (err, user) => {
+            if (err || !user) {
+                return res.status(400).send("NO VALID TOKEN")
+            }
+            
+            const postId = req.params.post_id
+            const likeDislike = req.query.like_dislike
+
+            const removedPost = await UserLike.findOneAndDelete(
+                {item_id: postId, item_type: 'post', user_id: user._id, like_dislike: likeDislike},
+            ).exec()
+            console.log("REMOVED LIKED FROM POST", removedPost)
+
+            res.status(200).json(removedPost)
         }
     )(req, res)
 
