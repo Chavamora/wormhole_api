@@ -1,5 +1,6 @@
 const Publicacion = require('../models/publicacion.js')
 const User = require('../models/user.js')
+const UserFollows = require('../models/user_follows')
 const UserLikes = require('../models/user_like.js')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
@@ -7,6 +8,7 @@ const passport = require('passport')
 const { response } = require('express')
 const { cloudinary } = require('../utils/cloudinary')
 const UserLike = require('../models/user_like.js')
+const { follow } = require('./followsController.js')
 
 module.exports = {
     getAllPublicaciones,
@@ -23,52 +25,63 @@ function getAllPublicaciones(req, res) {
                 return res.status(400).send("NO VALID TOKEN")
             }
 
-            const postsDocList = await Publicacion.find().sort({ createdAt: -1 })
-            const postsObjectsPromises = postsDocList.map(async (postDoc) => {
-                const post = postDoc.toObject()
-                const userDoc = await User.findById(post.user_id)
-                const userObj = userDoc.toObject()
-                const username = userObj.name
-                const url = userObj.profile_picture_url
-                post['url_user'] = url
-                post['name'] = username
-                return post
-            })
+            try {
+                let following = await UserFollows.find({user_follower_id: user._id}, "user_followed_id", {lean: true}).exec()
+                following = await following.map(followed => followed.user_followed_id)
+                console.log("FOLLOWING", following)
 
-            const posts = await Promise.all(postsObjectsPromises)
+                const filters = following.length ? {user_id: [...following, user._id]} : {}
 
-            const postsIds = posts.map(post => post._id)
+                const postsDocList = await Publicacion.find(filters).sort({ createdAt: -1 })
+                const postsObjectsPromises = postsDocList.map(async (postDoc) => {
+                    const post = postDoc.toObject()
+                    const userDoc = await User.findById(post.user_id)
+                    const userObj = userDoc.toObject()
+                    const username = userObj.name
+                    const url = userObj.profile_picture_url
+                    post['url_user'] = url
+                    post['name'] = username
+                    return post
+                })
 
-            const postsLikes = await UserLike.find({item_type: 'post', item_id: postsIds}, null, {lean: true}).exec()
-            const postsLikesCount = postsLikes.reduce((reducer, item) => {
-                console.log(reducer)
-                let count = {post_id: item.item_id, likes: 0, dislikes: 0, user_action: null}
+                const posts = await Promise.all(postsObjectsPromises)
 
-                if (item.item_id in reducer) {
-                    count = reducer[item.item_id];
-                }
+                const postsIds = posts.map(post => post._id)
 
-                if (item.like_dislike === 'like') {
-                    count.likes = count.likes + 1
-                } else if (item.like_dislike === 'dislike') {
-                    count.dislikes = count.dislikes + 1
-                }
+                const postsLikes = await UserLike.find({item_type: 'post', item_id: postsIds}, null, {lean: true}).exec()
+                const postsLikesCount = postsLikes.reduce((reducer, item) => {
+                    console.log(reducer)
+                    let count = {post_id: item.item_id, likes: 0, dislikes: 0, user_action: null}
 
-                if (item.user_id === user._id) {
-                    count.user_action = item.like_dislike
-                }
+                    if (item.item_id in reducer) {
+                        count = reducer[item.item_id];
+                    }
 
-                reducer[item.item_id] = count
+                    if (item.like_dislike === 'like') {
+                        count.likes = count.likes + 1
+                    } else if (item.like_dislike === 'dislike') {
+                        count.dislikes = count.dislikes + 1
+                    }
 
-                return reducer
-            }, {})
+                    if (item.user_id === user._id) {
+                        count.user_action = item.like_dislike
+                    }
 
-            const fullPosts = posts.map(post => ({...post, ...postsLikesCount[post._id]}))
+                    reducer[item.item_id] = count
 
-            console.log("FULLPOSTS", fullPosts)
-            
-            // console.log('response:', posts)
-            res.json(fullPosts)
+                    return reducer
+                }, {})
+
+                const fullPosts = posts.map(post => ({...post, ...postsLikesCount[post._id]}))
+
+                console.log("FULLPOSTS", fullPosts)
+                
+                // console.log('response:', posts)
+                res.json(fullPosts)
+            } catch(error) {
+                console.log(error)
+                res.status(400).json(error)
+            }
         }
     )(req, res)
 
