@@ -10,6 +10,7 @@ const perfilRoutes = require('./perfilRoutes')
 const imageRoutes = require('./imageRoutes')
 const reporteRoutes = require('./reporteRoutes')
 const commentRoutes = require('./commentRoutes')
+const publicacionRoutes = require('./publicacionRoutes')
 
 
 module.exports = app => {
@@ -24,5 +25,6 @@ module.exports = app => {
     perfilRoutes(app)
     imageRoutes(app)
     commentRoutes(app)
+    publicacionRoutes(app)
     reporteRoutes(app)
 }
