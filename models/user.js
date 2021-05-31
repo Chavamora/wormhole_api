@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema({
     },
     tipo: {
         type: Number,
-        default: 1
+        default: 1 // <- 1: user, 2: faqs editor, 3: Agente reportes, 4: gerente reportes, 5: desarrollador
     }
 });
 const User = mongoose.model('User', UserSchema);
