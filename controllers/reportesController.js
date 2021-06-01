@@ -47,16 +47,13 @@ function getReportes(req, res) {
                 report['url'] = url
                 report['name'] = username
                 report['tipo'] = user.tipo
-
                 return report
             })
-
             const response = await Promise.all(objectReportList)
             console.log('response:', response)
             res.json(response)
         }
     )(req, res)
-
 }
 
 function crearReporte(req, res) {
@@ -68,6 +65,10 @@ function crearReporte(req, res) {
                 return res.status(400).send("NO VALID TOKEN")
             }
 
+            const username= user.name
+            const url = user.url
+            const user_id = user._id
+
             try {
                 const user = await User.findOne({name: req.body.usuario}, null, {lean: true}).exec()
                 if (!user) {
@@ -75,7 +76,9 @@ function crearReporte(req, res) {
                 }
 
                 const reporte = new Reporte(req.body)
-                reporte['user_id'] = user._id;
+                reporte['user_id'] = user_id;
+                reporte['url'] = url;
+                reporte['name'] = username
                 const reporteNuevo = await reporte.save({lean: true})
 
                 const historialCreacion = new HistorialReporte({
@@ -90,6 +93,7 @@ function crearReporte(req, res) {
                 res.status(200).json(reporteNuevo)
 
             } catch (error) {
+                console.log(error)
                 res.status(400).json(error)
             }
         })(req, res)
@@ -104,20 +108,29 @@ function updateReporte(req, res) {
             if (err || !user) {
                 return res.status(400).send("NO VALID TOKEN")
             }
-
+            console.log('hola')
             try {
                 const reporteID = req.query.reporteID;
                 const reporteOriginal = await Reporte.findById(reporteID, null, {lean: true}).exec()
                 const body = req.body
 
-                if (
-                    (('status' in body || 'asignado_user_id' in body) && user.tipo != 4) || 
-                    (('titulo' in body || 'descripcion' in body) && (user.tipo != 4 || user.tipo != 3)) ||
-                    (('solucion' in body) && (user.type != 4 || user.type != 5)) || 
-                    ('substatus' in body && user.type != 5) || 
-                    (('solucion' in body || 'substatus' in body) && (user.type === 5 && user._id != reporteOriginal.asignado_user_id))
-                ) {
+                console.log(user.tipo)
+
+                // if (
+                //     (('status' in body || 'asignado_user_id' in body) && user.tipo != 4) || 
+                //     (('titulo' in body || 'descripcion' in body) && (user.tipo != 4 || user.tipo != 3)) ||
+                //     (('solucion' in body) && (user.tipo != 4 || user.tipo != 5)) || 
+                //     ('substatus' in body && user.tipo != 5) || 
+                //     (('solucion' in body || 'substatus' in body) && (user.tipo === 5 && user._id != reporteOriginal.asignado_user_id))
+                // ) 
+                
+
+                if(('status' in body || 'asignado_user_id' in body) && user.tipo != 4)
+                {
                     throw new Error('Tu usuario no tiene los permisos necesarios')
+                }
+                if (('titulo' in body || 'descripcion' in body) && (user.tipo != 4 && user.tipo != 3)) {
+                    throw new Error('Tu usuario no tiene los permisos necesariossssssssss')
                 }
 
                 const nuevoReporte = await Reporte.findByIdAndUpdate(reporteID, body, {lean: true, new: true}).exec()
@@ -138,9 +151,10 @@ function updateReporte(req, res) {
                 }, [])
 
                 Promise.all(historyRecordsPromises)
-
+                
                 res.status(200).json(nuevoReporte)
             } catch (error) {
+                console.log(error)
                 res.status(400).json(error)
             }
         })(req, res)

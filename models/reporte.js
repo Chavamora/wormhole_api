@@ -12,6 +12,7 @@ const reporteSchema = new Schema({
     },
     status: {
         type: String,
+        default: 'abierto',
         required: true,
     },
     substatus: {
@@ -28,6 +29,7 @@ const reporteSchema = new Schema({
     },
     solucion: {
         type: String,
+        default: '',
         required: false,
     },
     usuario: { // <- Nombre del usuario que contacto al agente
