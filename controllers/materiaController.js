@@ -40,29 +40,22 @@ function getMaterias (req, res)  {
 
 function newMateria  (req, res)  {
     console.log(req.body);
-
     passport.authenticate('jwt', 
     (err, user) => {
         if (err || !user) {
             return res.status(400).send("NO VALID TOKEN")   
         }
-
         console.log(req.body);
         const materia = new Materia(req.body);
         materia.user_id = user._id;
         console.log(materia);
-    
-
         materia.save()
         .then((result) => {
             res.status(200).json(result);
-
         })
         .catch((err) => {
             console.log(err);
         })
-
-
         console.log(user)
     }
     )(req, res)

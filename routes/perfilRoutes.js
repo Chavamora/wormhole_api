@@ -6,4 +6,6 @@ module.exports = app => {
     app.route('/user/perfil' )
     .get(perfilController.getPerfil)
     .post(perfilController.postPerfil)
+    app.route('/users/buscar')
+    .post(perfilController.buscar)
 }

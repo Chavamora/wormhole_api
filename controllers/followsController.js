@@ -4,6 +4,7 @@ const passport = require('passport')
 module.exports = {
     follow,
     unfollow,
+    getFollows,
 }
 
 function follow(req, res) {
@@ -40,6 +41,30 @@ function follow(req, res) {
             .catch(err => {
                 return res.status(400).json({"error": err})
             })
+
+        }
+    )(req, res)
+}
+
+
+function getFollows(req, res) {
+
+    passport.authenticate('jwt',
+        async (err, user) => {
+            if (err || !user) {
+                return res.status(400).send("NO VALID TOKEN")
+            }
+
+            const following_already = await UserFollows.find({
+                user_follower_id: user._id,
+                user_followed_id: req.params.user_followed_id,
+            }, null, {lean: true}).exec()
+
+            if (following_already.length) {
+                return res.status(200).json({"following": true}) 
+            }
+
+            
 
         }
     )(req, res)

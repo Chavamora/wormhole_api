@@ -7,4 +7,6 @@ module.exports = app => {
     .post(followsController.follow)
     app.route('/user/unfollow/:user_followed_id')
     .delete(followsController.unfollow)
+    app.route('/user/checkFollow/:user_followed_id')
+    .get(followsController.getFollows)
 }
