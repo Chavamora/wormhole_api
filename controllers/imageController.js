@@ -66,7 +66,6 @@ function getImage(req, res) {
         .sort_by('public_id', 'desc')
         .max_results(30)
         .execute();
-      console.log('resources: ', resources)
       const publicIds = resources.map(file => file.public_id)
       res.json(publicIds)
     }
@@ -94,15 +93,12 @@ function postImage(req, res) {
         const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
           upload_preset: 'profile_pictures'
         })
-        console.log(uploadedResponse)
         const url = uploadedResponse.secure_url
 
         User.findByIdAndUpdate(
           { _id: user._id },
           { profile_picture_url: url })
           .then((user) => {
-
-            console.log('userconurl', user)
           })
 
 

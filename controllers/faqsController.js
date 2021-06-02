@@ -1,4 +1,4 @@
-const Faq = require('../models/faq.js')
+const Faq = require('../models/pregunta.js')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
@@ -6,11 +6,13 @@ const passport = require('passport')
 var editor
 
 module.exports = {
-    getMaterias,
-    newMateria
+    getFaqs,
+    crearFaq,
+    editarFaq, 
+    eliminarFaq,
 }
 
-function getfaqs (req, res)  {
+function getFaqs (req, res)  {
 
     passport.authenticate('jwt', 
     (err, user) => {
@@ -18,31 +20,23 @@ function getfaqs (req, res)  {
             return res.status(400).send("NO VALID TOKEN")   
         }
 
-        if (user.tipo === 2) {
             //el usuario es editor
             Faq.find().sort({ createdAt: -1})
             .then((result) => {
+               
+                result.push(user.tipo)
                 res.json(result)
             })
             .catch((err) => {
                 console.log(err);
             })
-        } else {
-            //el usuario NO es editor
-            Faq.find().sort({ createdAt: -1})
-            .then((result) => {
-                res.json(result)
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-        } 
+ 
     }
 )(req, res)
     
 }
 
-function postFaqs  (req, res)  {
+function crearFaq  (req, res)  {
     console.log(req.body);
 
     passport.authenticate('jwt', 
@@ -69,29 +63,31 @@ function postFaqs  (req, res)  {
 
 //MODIFICAR PREGUNTAS
 
-function getFaqsEdit  (req, res)  {
-    console.log(req.body);
+function editarFaq  (req, res)  {
+    console.log(req.body.titulo);
 
     passport.authenticate('jwt', 
-    (err, user) => {
+    async (err, user) => {
         if (err || !user) {
             return res.status(400).send("NO VALID TOKEN")   
         }
         const id = req.params.id;
 
-        Faq.findById(id)
-        .then(result => {
-         res.json(result);
-         console.log(result)
-        })
-        .catch(err => {
-            console.log(err)
-        })
+        try {
+            const faq = await Faq.findByIdAndUpdate(id, {titulo: req.body.titulo, respuesta: req.body.respuesta},  {lean: true, new: true}).exec();
+            console.log(faq)
+            res.status(200).json(faq)
+
+            } catch(err) {
+                console.log(err)
+
+                res.status(400).json({message: 'algo salió mal'})
+            }
     }
     )(req, res)
 }
 
-function postFaqsEdit  (req, res)  {
+function eliminarFaq  (req, res)  {
     console.log(req.body);
 
     passport.authenticate('jwt', 
@@ -99,27 +95,17 @@ function postFaqsEdit  (req, res)  {
         if (err || !user) {
             return res.status(400).send("NO VALID TOKEN")   
         }
+        
         const id = req.params.id;
  
         console.log(req.body);
-        Faq.findByIdAndUpdate(
-
-        {_id: id}, 
-        {titulo: req.body.titulo,
-        respuesta: req.body.respuesta},
-        
-        
-        function(err, result) {
-            if(err) {
-                res.send(err);
-            } else {
-                res.status(200).send('Pregunta Actualizada');
-            }
-        }
-    )
-    .catch(err => {
-        console.log(err)
-    })
+        Faq.findByIdAndDelete(id)
+        .then(result => {
+            res.status(200).json({message: 'eliminado correctamente'})
+        })
+        .catch(err => {
+            console.log(err)
+        })
     }
     )(req, res)
 }

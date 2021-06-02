@@ -5,8 +5,8 @@ const passport = require('passport')
 module.exports = app => {
     app.route('/user/faqs' )
     .get(faqsController.getFaqs)
-    .post(faqsController.postFaqs)
+    .post(faqsController.crearFaq)
     app.route('/user/faqs/modificar/:id')
-    .get(faqsController.getFaqsEdit)
-    .post(faqsController.postFaqsEdit)
+    .post(faqsController.editarFaq)
+    .delete(faqsController.eliminarFaq)
 }

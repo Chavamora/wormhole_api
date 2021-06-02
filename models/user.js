@@ -23,6 +23,16 @@ const UserSchema = new mongoose.Schema({
     tipo: {
         type: Number,
         default: 1 // <- 1: user, 2: faqs editor, 3: Agente reportes, 4: gerente reportes, 5: desarrollador
+    },
+    biografia: {
+        type: String,
+        default: 'Haz clic en editar biografía para añadir la tuya',
+        required: false,
+    },
+    frase: {
+        type: String,
+        default: 'haz click en editar para agregar una frase',
+        required: false,
     }
 });
 const User = mongoose.model('User', UserSchema);

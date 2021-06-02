@@ -4,7 +4,8 @@ const passport = require('passport')
 
 module.exports = {
     getDeportes,
-    newDeporte
+    newDeporte,
+    getSingleUserDeportes,
 }
 
 function getDeportes  (req, res)  {
@@ -80,3 +81,27 @@ function newDeporte  (req, res)  {
     }
 )(req, res)
 }
+
+function getSingleUserDeportes  (req, res)  {
+    console.log(req.body);
+    const id = req.params.id
+
+    passport.authenticate('jwt', 
+    async (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        const result = await Deporte.find({"user_id": id}, null, {lean: true}).exec()
+        if (!result) {
+            throw new Error("Something went wrong while fetching user profile")
+        }
+        console.log(result)
+        res.status(200).json(result)
+
+
+        console.log(user)
+    }
+)(req, res)
+}
+

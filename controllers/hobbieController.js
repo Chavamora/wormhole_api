@@ -4,7 +4,8 @@ const passport = require('passport')
 
 module.exports = {
     getHobbies,
-    newHobbie
+    newHobbie,
+    getSingleUserHobbies,
 }
 
 function getHobbies  (req, res)  {
@@ -30,23 +31,7 @@ function getHobbies  (req, res)  {
 
         console.log(user)
 
-        
-        // console.log("USER", user)
-        // user_custom_info = {
-        //     ...user,
-        //     login_dates: [
-        //         '2020-01-20', '2021-01-07'
-        //     ]
-        // }
-        // res.status(200).json(user_custom_info)
-        // User.find().sort({ createdAt: -1})
-        // .then((result) => {
-        //     res.status(200).json(result);
-        // })
-        // .catch((err) => {
-        //     console.log(err);
-        //     res.status(500).send('unexpected error')
-        // })
+
     }
 )(req, res)
 
@@ -74,6 +59,28 @@ function newHobbie  (req, res)  {
         .catch((err) => {
             console.log(err);
         })
+
+
+        console.log(user)
+    }
+)(req, res)
+}
+
+
+function getSingleUserHobbies  (req, res)  {
+const id = req.params.id
+    passport.authenticate('jwt', 
+    async (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        const result = await Hobbie.find({"user_id": id}, null, {lean: true}).exec()
+        if (!result) {
+            throw new Error("Something went wrong while fetching user profile")
+        }
+        console.log(result)
+        res.status(200).json(result)
 
 
         console.log(user)

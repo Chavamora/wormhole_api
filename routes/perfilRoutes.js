@@ -8,4 +8,7 @@ module.exports = app => {
     .post(perfilController.postPerfil)
     app.route('/users/buscar')
     .post(perfilController.buscar)
+    app.route('/user/editar')
+    .post(perfilController.editarPerfil)
+    .get(perfilController.getBiografia)
 }

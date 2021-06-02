@@ -1,10 +1,13 @@
 const UserFollows = require('../models/user_follows.js')
 const passport = require('passport')
+const User = require('../models/user.js')
 
 module.exports = {
     follow,
     unfollow,
     getFollows,
+    getFollowersData,
+    getFollowersDataId,
 }
 
 function follow(req, res) {
@@ -64,6 +67,96 @@ function getFollows(req, res) {
                 return res.status(200).json({"following": true}) 
             }
 
+            
+
+        }
+    )(req, res)
+}
+
+function getFollowersData(req, res) {
+
+    passport.authenticate('jwt',
+        async (err, user) => {
+            if (err || !user) {
+                return res.status(400).send("NO VALID TOKEN")
+            }
+
+            const following = await UserFollows.find({
+                user_follower_id: user._id,
+            }, null, {lean: true}).exec()
+
+            console.log(following)
+
+
+            const followingIds = following.map( follow => {
+                return  follow.user_followed_id
+            });
+
+            
+
+
+            const result = followingIds.map(async id => {
+                let follower = {}
+                const user = await User.findById(id, null, {lean: true}).exec()
+                console.log(user)
+                follower['id'] = user._id
+                follower['url'] = user.profile_picture_url
+                follower['name'] = user.name
+                return follower
+            })
+
+        
+            const followingData = await Promise.all(result)
+            console.log('followingData:', followingData)
+
+
+            return res.status(200).json(followingData) 
+            
+
+        }
+    )(req, res)
+}
+
+function getFollowersDataId(req, res) {
+
+    passport.authenticate('jwt',
+        async (err, user) => {
+            if (err || !user) {
+                return res.status(400).send("NO VALID TOKEN")
+            }
+
+const userID = req.params.id
+
+            const following = await UserFollows.find({
+                user_follower_id: userID,
+            }, null, {lean: true}).exec()
+
+            console.log(following)
+
+
+            const followingIds = following.map( follow => {
+                return  follow.user_followed_id
+            });
+
+            
+
+
+            const result = followingIds.map(async id => {
+                let follower = {}
+                const user = await User.findById(id, null, {lean: true}).exec()
+                console.log(user)
+                follower['id'] = user._id
+                follower['url'] = user.profile_picture_url
+                follower['name'] = user.name
+                return follower
+            })
+
+        
+            const followingData = await Promise.all(result)
+            console.log('followingData:', followingData)
+
+
+            return res.status(200).json(followingData) 
             
 
         }

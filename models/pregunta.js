@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const faqSchema = new Schema({
+const preguntaSchema = new Schema({
     titulo: {
         type: String,
         required: true
@@ -16,5 +16,5 @@ const faqSchema = new Schema({
     }
 }, {timestamps: true});
 
-const Faq = mongoose.model('Faq', faqSchema);
-module.exports = Faq;
+const Pregunta = mongoose.model('Pregunta', preguntaSchema);
+module.exports = Pregunta;

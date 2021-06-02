@@ -12,6 +12,7 @@ const reporteRoutes = require('./reporteRoutes')
 const commentRoutes = require('./commentRoutes')
 const publicacionRoutes = require('./publicacionRoutes')
 const followsRoutes = require('./followsRoutes')
+const faqRoutes = require('./faqsRoutes')
 
 
 module.exports = app => {
@@ -28,5 +29,6 @@ module.exports = app => {
     commentRoutes(app)
     publicacionRoutes(app)
     reporteRoutes(app)
+    faqRoutes(app)
     followsRoutes(app)
 }

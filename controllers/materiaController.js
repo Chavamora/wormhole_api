@@ -5,7 +5,8 @@ const passport = require('passport')
 
 module.exports = {
     getMaterias,
-    newMateria
+    newMateria,
+    getSingleUserMaterias,
 }
 
 function getMaterias (req, res)  {
@@ -60,4 +61,26 @@ function newMateria  (req, res)  {
     }
     )(req, res)
 }
-    
+
+function getSingleUserMaterias  (req, res)  {
+    const id = req.params.id
+
+    console.log(req.body);
+    passport.authenticate('jwt', 
+    async (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        const result = await Materia.find({"user_id": id}, null, {lean: true}).exec()
+        if (!result) {
+            throw new Error("Something went wrong while fetching user profile")
+        }
+        console.log(result)
+        res.status(200).json(result)
+
+
+        console.log(user)
+    }
+    )(req, res)
+}

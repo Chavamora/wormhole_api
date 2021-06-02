@@ -4,7 +4,8 @@ const passport = require('passport')
 
 module.exports = {
     getMetas,
-    newMeta
+    newMeta,
+    getSingleUserMetas,
 }
 
 function getMetas  (req, res)  {
@@ -79,6 +80,27 @@ function newMeta  (req, res)  {
 
 
         console.log(user)
+    }
+)(req, res)
+}
+
+function getSingleUserMetas  (req, res)  {
+    console.log(req.body);
+    const id = req.params.id
+
+    passport.authenticate('jwt', 
+    async (err, user) => {
+        if (err || !user) {
+            return res.status(400).send("NO VALID TOKEN")   
+        }
+
+        const result = await Meta.find({"user_id": id}, null, {lean: true}).exec()
+        if (!result) {
+            throw new Error("Something went wrong while fetching user profile")
+        }
+        console.log(result)
+        res.status(200).json(result)
+
     }
 )(req, res)
 }

@@ -7,7 +7,9 @@ const passport = require('passport')
 module.exports = {
     getPerfil,
     postPerfil,
-    buscar
+    buscar,
+    editarPerfil,
+    getBiografia,
 }
 
 function getPerfil  (req, res)  {
@@ -106,3 +108,48 @@ console.log('buenass',req.body)
 
 
 }
+
+function editarPerfil  (req, res)  {
+    console.log('buenass',req.body)
+        passport.authenticate('jwt', 
+        async (err, user) => {
+            if (err || !user) {
+                return res.status(400).send("NO VALID TOKEN")   
+            }
+            try {
+            const userdoc = await User.findByIdAndUpdate(user._id,{ biografia: req.body.biografia.biografia, frase: req.body.biografia.frase},  {lean: true, new: true}).exec();
+            console.log(userdoc)
+            res.status(200).json(userdoc)
+
+            } catch(err) {
+                console.log(err)
+
+                res.status(400).json({message: 'algo salió mal'})
+            }
+        }
+    )(req, res)
+    
+    
+    }
+    
+    function getBiografia  (req, res)  {
+            passport.authenticate('jwt', 
+            async (err, user) => {
+                if (err || !user) {
+                    return res.status(400).send("NO VALID TOKEN")   
+                }
+                try {
+                const userdoc = await User.find({_id: user._id});
+                console.log('userdoc:', userdoc)
+                res.status(200).json(userdoc)
+    
+                } catch(err) {
+                    console.log(err)
+    
+                    res.status(400).json({message: 'algo salió mal'})
+                }
+            }
+        )(req, res)
+        
+        
+        }
